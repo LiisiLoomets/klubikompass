@@ -1,0 +1,7 @@
+{
+  "name": "klubikompass",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
