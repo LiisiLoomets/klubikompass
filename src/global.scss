@@ -35,3 +35,16 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+ion-toolbar {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+}
+
+ion-tab-bar {
+    --background: var(--ion-card-background);
+}
+
+ion-tab-button {
+    --color: var(--app-text-secondary)
+}
