@@ -36,4 +36,30 @@
 
   --app-text-secondary: #999999;
   --app-disabled: #3a3a3a;
+
+  /* Font sizes */
+  --app-font-size-sm: 0.875rem; 
+  --app-font-size-base: 1rem;   
+  --app-h3-size: 1.125rem;      
+  --app-h2-size: 1.25rem;       
+  --app-h1-size: 1.5rem; 
+
+  /* Font weights */
+  --app-font-weight-regular: 400;
+  --app-font-weight-medium: 500;
+  --app-font-weight-semibold: 600;
+  --app-font-weight-bold: 700;
+
+  /* Radius */
+  --app-radius-sm: .375rem;
+  --app-radius-md: 0.75rem;
+  --app-radius-lg: 1rem;        
+  --app-radius-xl: 1.25rem;     
+
+  /* Spacing */
+  --app-space-xs: 0.25rem;
+  --app-space-sm: 0.5rem;
+  --app-space-md: 0.75rem;
+  --app-space-lg: 1rem;
+  --app-space-xl: 1.25rem;
 }
