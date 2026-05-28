@@ -1,0 +1,16 @@
+<ion-card class="quote-card">
+  <ion-card-header>
+    <ion-card-title>
+      <i class="fa-solid fa-quote-right"></i>
+      Päeva tarkus
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    @if (dailyQuote) {
+    <div class="quote-text">
+      <p>{{ dailyQuote.text }}</p>
+    </div>
+    }
+  </ion-card-content>
+</ion-card>
