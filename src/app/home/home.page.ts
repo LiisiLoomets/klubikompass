@@ -10,10 +10,17 @@ import { RecommendedPlaceCardComponent } from '@app/components/recommended-place
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, HeaderComponent, RecommendedPlaceCardComponent],
+  imports: [
+    IonContent,
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+    RecommendedPlaceCardComponent,
+  ],
 })
 export class HomePage implements OnInit {
-  constructor() {}
 
-  ngOnInit() {}
+  async ngOnInit() {
+    
+  }
 }
