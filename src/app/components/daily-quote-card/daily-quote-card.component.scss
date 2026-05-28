@@ -1,0 +1,24 @@
+.quote-card {
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-md);
+  margin: var(--app-space-lg);
+  margin-top: var(--app-space-xl);
+  color: var(--ion-text-color);
+  padding: var(--app-space-sm);
+}
+
+ion-card-title {
+  font-size: var(--app-h2-size);
+  font-weight: var(--app-font-weight-bold);
+  color: var(--ion-color-tertiary);
+}
+
+.quote-text p {
+  font-size: var(--app-font-size-base);
+  color: var(--ion-text-color);
+  font-weight: var(--app-font-weight-regular);
+  margin: 0;
+}
+
+
