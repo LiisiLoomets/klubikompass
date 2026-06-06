@@ -1,18 +1,36 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular/standalone';
+import {
+  IonContent,
+  IonSearchbar,
+  IonList,
+  IonLabel,
+  IonNote,
+  IonItem,
+} from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
 import * as L from 'leaflet';
 import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
+import { Place } from '@app/models/places.model';
 
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.page.html',
   styleUrls: ['./discover.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, HeaderComponent],
+  imports: [
+    IonContent,
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+    IonSearchbar,
+    IonList,
+    IonLabel,
+    IonNote,
+    IonItem,
+  ],
 })
 export class DiscoverPage implements AfterViewInit {
   private map!: L.Map;
@@ -20,6 +38,34 @@ export class DiscoverPage implements AfterViewInit {
     private userLocationService: UserLocationService,
     private placesService: PlacesService,
   ) {}
+
+  searchQuery = '';
+  showResults = true;
+  places: Place[] = [];
+
+  get filteredPlaces(): Place[] {
+    if (!this.searchQuery.trim()) {
+      return this.places;
+    }
+
+    return this.places.filter((place) =>
+      place.name.toLowerCase().includes(this.searchQuery.toLowerCase()),
+    );
+  }
+
+  onSearchChange(value: string | null | undefined) {
+    this.searchQuery = value ?? '';
+    this.showResults = true;
+  }
+
+  centerMap(place: Place) {
+    this.map.flyTo([place.lat, place.lng], 16, {
+      duration: 1.5,
+    });
+
+    this.searchQuery = place.name;
+    this.showResults = false;
+  }
 
   async ngAfterViewInit() {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -30,7 +76,10 @@ export class DiscoverPage implements AfterViewInit {
       shadowUrl: 'assets/leaflet/marker-shadow.png',
     });
 
-    const [lat, lng] = await this.userLocationService.getCurrentPosition();
+    const position = await this.userLocationService.getCurrentPosition();
+
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
 
     this.map = L.map('map').setView([lat, lng], 14);
 
@@ -44,14 +93,13 @@ export class DiscoverPage implements AfterViewInit {
       radius: 2000,
     }).addTo(this.map);
 
-    const places = await this.placesService.getPlaces(lat, lng);
+    this.places = await this.placesService.getPlaces(lat, lng);
 
-    places.forEach((place) => {
+    this.places.forEach((place) => {
       L.marker([place.lat, place.lng]).addTo(this.map).bindPopup(`
         <strong>${place.name}</strong><br>
         ${place.type}
       `);
     });
-    
   }
 }
