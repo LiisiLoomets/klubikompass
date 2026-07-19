@@ -1,14 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  IonContent,
-  IonSearchbar,
-  IonList,
-  IonLabel,
-  IonNote,
-  IonItem,
-} from '@ionic/angular/standalone';
+import { IonContent, IonSearchbar, IonList, IonLabel, IonNote, IonItem, IonHeader, IonToolbar } from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
 import * as L from 'leaflet';
 import { UserLocationService } from '@app/core/services/user-location';
@@ -30,7 +23,9 @@ import { Place } from '@app/models/places.model';
     IonLabel,
     IonNote,
     IonItem,
-  ],
+    IonHeader,
+    IonToolbar
+],
 })
 export class DiscoverPage implements AfterViewInit {
   private map!: L.Map;

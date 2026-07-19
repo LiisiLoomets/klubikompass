@@ -1,8 +1,10 @@
 <ion-header>
   <ion-toolbar>
-    <div class="header">
-      <img src="assets/icon/logo.png" alt="KlubiKompass logo" class="logo">
-      <span class="app-name">KlubiKompass</span>
-    </div>
+    @if (showLogo) {
+      <ion-buttons slot="start">
+        <img src="assets/icon/logo.png" alt="Logo" class="toolbar-logo">
+      </ion-buttons>
+    } 
+    <ion-title>{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
