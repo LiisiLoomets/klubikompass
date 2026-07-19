@@ -87,7 +87,18 @@ export class DiscoverPage implements AfterViewInit {
       maxZoom: 19,
     }).addTo(this.map);
 
-    L.marker([lat, lng]).addTo(this.map).bindPopup('Sinu asukoht');
+    const userIcon = L.icon({
+      iconUrl:
+        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+      shadowUrl:
+        'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    L.marker([lat, lng], {icon: userIcon}).addTo(this.map).bindPopup('Sinu asukoht');
 
     L.circle([lat, lng], {
       radius: 2000,
