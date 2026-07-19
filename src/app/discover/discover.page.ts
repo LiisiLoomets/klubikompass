@@ -98,7 +98,9 @@ export class DiscoverPage implements AfterViewInit {
       shadowSize: [41, 41],
     });
 
-    L.marker([lat, lng], {icon: userIcon}).addTo(this.map).bindPopup('Sinu asukoht');
+    L.marker([lat, lng], { icon: userIcon })
+      .addTo(this.map)
+      .bindPopup('Sinu asukoht');
 
     L.circle([lat, lng], {
       radius: 2000,

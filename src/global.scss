@@ -46,12 +46,7 @@ body {
   font-family: "Montserrat", sans-serif;
 }
 
-
-.title {
-  font-size: var(--app-h2-size);
-}
-
-.sub-title {
-  font-size: var(--app-font-size-sm);
-  color: var(--app-text-secondary)
+.page {
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
