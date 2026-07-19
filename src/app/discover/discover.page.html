@@ -1,39 +1,30 @@
-<ion-header>
-  <ion-toolbar>
-    <app-header title="Baarid ja klubid"></app-header>
-  </ion-toolbar>
-</ion-header>
+<app-header title="Baarid ja klubid"></app-header>
 
-<ion-content class="discover-content">
-
+<ion-content>
   <div class="page">
-
     <div class="map-section">
-
       <ion-searchbar
         (ionInput)="onSearchChange($event.detail.value ?? '')"
         (ionFocus)="showResults = true"
         [value]="searchQuery"
-        placeholder="Otsi baare või klubisid">
+        placeholder="Otsi baare või klubisid"
+      >
       </ion-searchbar>
 
       <div class="map-wrapper">
         <div id="map"></div>
 
         @if (searchQuery && filteredPlaces.length > 0 && showResults) {
-          <ion-list class="search-results">
-            @for (place of filteredPlaces; track place.id) {
-              <ion-item button (click)="centerMap(place)">
-                <ion-label>{{ place.name }}</ion-label>
-                <ion-note slot="end">{{ place.type }}</ion-note>
-              </ion-item>
-            }
-          </ion-list>
+        <ion-list class="search-results">
+          @for (place of filteredPlaces; track place.id) {
+          <ion-item button (click)="centerMap(place)">
+            <ion-label>{{ place.name }}</ion-label>
+            <ion-note slot="end">{{ place.type }}</ion-note>
+          </ion-item>
+          }
+        </ion-list>
         }
       </div>
-
     </div>
-
   </div>
-
 </ion-content>

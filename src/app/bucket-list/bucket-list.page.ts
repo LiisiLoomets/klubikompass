@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonToolbar, IonHeader } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
 
 @Component({
@@ -9,7 +9,7 @@ import { HeaderComponent } from '@app/components/header/header.component';
   templateUrl: './bucket-list.page.html',
   styleUrls: ['./bucket-list.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, HeaderComponent, IonToolbar, IonHeader],
+  imports: [IonContent, CommonModule, FormsModule, HeaderComponent],
 })
 export class BucketListPage implements OnInit {
   constructor() {}
