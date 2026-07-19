@@ -1,17 +1,7 @@
-<ion-card class="recommended-card">
-  <ion-card-header>
-    <ion-card-title>
-      <i class="fa-solid fa-star"></i>
-      Soovitatud koht
-    </ion-card-title>
-  </ion-card-header>
-
-  <ion-card-content>
-    <div class="place-info">
-      <h2>{{ place.name }}</h2>
-      <p>{{ place.aadress }}</p>
-    </div>
-
-    <ion-button expand="block" color="primary">VAATA KAARDIL</ion-button>
-  </ion-card-content>
-</ion-card>
+<app-card title="Soovitatud koht" icon="fa-solid fa-star" titleColor="var(--ion-color-primary)">
+  <div class="place-info">
+    <h2>{{ place.name }}</h2>
+    <p>{{ place.aadress }}</p>
+  </div>
+  <ion-button expand="block" color="primary">VAATA KAARDIL</ion-button>
+</app-card>

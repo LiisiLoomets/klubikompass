@@ -1,16 +1,5 @@
-<ion-card class="quote-card">
-  <ion-card-header>
-    <ion-card-title>
-      <i class="fa-solid fa-quote-right"></i>
-      Päeva tarkus
-    </ion-card-title>
-  </ion-card-header>
-
-  <ion-card-content>
-    @if (dailyQuote) {
-    <div class="quote-text">
-      <p>{{ dailyQuote.text }}</p>
-    </div>
-    }
-  </ion-card-content>
-</ion-card>
+<app-card title="Päeva tarkus" icon="fa-solid fa-quote-right" titleColor="var(--ion-color-tertiary)">
+  @if (dailyQuote) {
+    <p>{{ dailyQuote.text }}</p>
+  }
+</app-card>

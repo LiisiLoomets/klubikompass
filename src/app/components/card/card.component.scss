@@ -1,0 +1,16 @@
+.app-card {
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-md);
+  margin: 0 0 var(--app-space-lg);
+  color: var(--ion-text-color);
+  padding: var(--app-space-sm);
+}
+
+ion-card-title {
+  font-size: var(--app-h2-size);
+  font-weight: var(--app-font-weight-bold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -1,18 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-} from '@ionic/angular/standalone';
 import { QuoteService } from '@services/quote';
 import { SupabaseService } from '@services/supabase';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'app-daily-quote-card',
   templateUrl: './daily-quote-card.component.html',
   styleUrls: ['./daily-quote-card.component.scss'],
-  imports: [IonCard, IonCardContent, IonCardHeader, IonCardTitle],
+  imports: [CardComponent],
 })
 export class DailyQuoteCardComponent implements OnInit {
   constructor(
