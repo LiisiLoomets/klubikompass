@@ -1,29 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonButton
-} from '@ionic/angular/standalone';
+import { IonButton } from '@ionic/angular/standalone';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'app-recommended-place-card',
   templateUrl: './recommended-place-card.component.html',
   styleUrls: ['./recommended-place-card.component.scss'],
-  imports: [
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonButton,
-  ],
+  imports: [IonButton, CardComponent],
 })
 export class RecommendedPlaceCardComponent {
   place = {
-    name: "Hall",
-    type: "Klubi",
-    aadress: "Peetri 6"
+    name: 'Hall',
+    type: 'Klubi',
+    aadress: 'Peetri 6',
   };
-
 }
