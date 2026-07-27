@@ -1,0 +1,41 @@
+.login-content {
+  --overflow: hidden;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.login-header {
+  margin-bottom: var(--app-space-xl);
+
+  .title {
+    font-size: var(--app-h1-size);
+    font-weight: var(--app-font-weight-bold);
+    margin: 0 0 4px;
+  }
+
+  .highlight {
+    color: var(--ion-color-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--app-text-secondary);
+  }
+}
+
+.register-link {
+  text-align: center;
+  margin-top: var(--app-space-lg);
+  color: var(--app-text-secondary);
+
+  a {
+    color: var(--ion-color-primary);
+    font-weight: var(--app-font-weight-medium);
+    cursor: pointer;
+  }
+}

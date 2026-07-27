@@ -1,0 +1,49 @@
+<ion-content class="login-content">
+  <div class="page">
+    <div class="login-header">
+      <h1 class="title">Tere tulemast <span class="highlight">tagasi</span></h1>
+      <p>Logi sisse, et jätkata</p>
+    </div>
+
+    <form (ngSubmit)="onLogin()">
+      <div class="form-group">
+        <label class="form-label">E-post</label>
+        <ion-item class="form-input">
+          <ion-input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="sinu@email.com"
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Parool</label>
+        <ion-item class="form-input">
+          <ion-input
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      @if (errorMessage){
+      <ion-text color="danger">
+        <p class="error">{{ errorMessage }}</p>
+      </ion-text>
+      }
+
+      <ion-button class="form-button" expand="block" type="submit" [disabled]="loading">
+        @if (loading) { Laadimine... } @else { Logi sisse }
+      </ion-button>
+    </form>
+
+    <p class="register-link">
+      Pole veel kontot?
+      <a (click)="goToRegister()">Loo konto</a>
+    </p>
+  </div>
+</ion-content>
