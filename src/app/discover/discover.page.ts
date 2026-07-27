@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -14,6 +14,9 @@ import * as L from 'leaflet';
 import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
 import { Place } from '@app/models/places.model';
+
+const DEFAULT_LAT = 59.437;
+const DEFAULT_LNG = 24.7536;
 
 @Component({
   selector: 'app-discover',
@@ -34,6 +37,7 @@ import { Place } from '@app/models/places.model';
 })
 export class DiscoverPage implements AfterViewInit {
   private map!: L.Map;
+
   constructor(
     private userLocationService: UserLocationService,
     private placesService: PlacesService,
@@ -76,43 +80,64 @@ export class DiscoverPage implements AfterViewInit {
       shadowUrl: 'assets/leaflet/marker-shadow.png',
     });
 
-    const position = await this.userLocationService.getCurrentPosition();
-
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-
-    this.map = L.map('map').setView([lat, lng], 14);
+    this.map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], 14);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(this.map);
 
-    const userIcon = L.icon({
-      iconUrl:
-        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-      shadowUrl:
-        'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
+    setTimeout(() => {
+      this.map.invalidateSize();
+    }, 100);
 
-    L.marker([lat, lng], { icon: userIcon })
-      .addTo(this.map)
-      .bindPopup('Sinu asukoht');
+    this.loadUserLocation();
+  }
 
-    L.circle([lat, lng], {
-      radius: 2000,
-    }).addTo(this.map);
+  private async loadUserLocation() {
+    try {
+      const position = await this.userLocationService.getCurrentPosition();
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
 
-    this.places = await this.placesService.getPlaces(lat, lng);
+      this.map.setView([lat, lng], 14);
+      this.map.invalidateSize();
 
-    this.places.forEach((place) => {
-      L.marker([place.lat, place.lng]).addTo(this.map).bindPopup(`
-        <strong>${place.name}</strong><br>
-        ${place.type}
-      `);
-    });
+      const userIcon = L.icon({
+        iconUrl: 'assets/leaflet/marker-icon-red.png',
+        shadowUrl: 'assets/leaflet/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      });
+
+      L.marker([lat, lng], { icon: userIcon })
+        .addTo(this.map)
+        .bindPopup('Sinu asukoht');
+
+      L.circle([lat, lng], {
+        radius: 2000,
+      }).addTo(this.map);
+
+      this.loadPlaces(lat, lng);
+    } catch (err) {
+      console.error('Location error:', err);
+      this.loadPlaces(DEFAULT_LAT, DEFAULT_LNG);
+    }
+  }
+
+  private async loadPlaces(lat: number, lng: number) {
+    try {
+      this.places = await this.placesService.getPlaces(lat, lng);
+
+      this.places.forEach((place) => {
+        L.marker([place.lat, place.lng]).addTo(this.map).bindPopup(`
+          <strong>${place.name}</strong><br>
+          ${place.type}
+        `);
+      });
+    } catch (err) {
+      console.error('Failed to load places:', err);
+    }
   }
 }
