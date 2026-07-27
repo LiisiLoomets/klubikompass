@@ -1,69 +1,65 @@
 <ion-content class="register-content">
-  <div class="class">
+  <div class="page">
     <div class="register-header">
-      <h1 class="title">Loo konto</h1>
+      <h1 class="title">Loo <span class="highlight">konto</span></h1>
       <p>Alusta oma elamuste teekonda</p>
     </div>
-  </div>
 
-  <form (ngSubmit)="onRegister()">
-    <ion-item>
-      <ion-label position="stacked">Kasutajanimi</ion-label>
-      <ion-input
-        type="text"
-        [(ngModel)]="username"
-        name="username"
-        placeholder="party_liisi"
-      ></ion-input>
-    </ion-item>
+    <form (ngSubmit)="onRegister()">
+      <ion-item>
+        <ion-label position="stacked">Kasutajanimi</ion-label>
+        <ion-input
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="party_liisi"
+        ></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">E-post</ion-label>
-      <ion-input
-        type="email"
-        [(ngModel)]="email"
-        name="email"
-        placeholder="sinu@email.com"
-      ></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">E-post</ion-label>
+        <ion-input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="sinu@email.com"
+        ></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Parool</ion-label>
-      <ion-input
-        type="password"
-        [(ngModel)]="password"
-        name="password"
-        placeholder="••••••••"
-      ></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Parool</ion-label>
+        <ion-input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="••••••••"
+        ></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Korda parool</ion-label>
-      <ion-input
-        type="password"
-        [(ngModel)]="confirmPassword"
-        name="confirmPassword"
-        placeholder="••••••••"
-      ></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Korda parool</ion-label>
+        <ion-input
+          type="password"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          placeholder="••••••••"
+        ></ion-input>
+      </ion-item>
 
-    @if (errorMessage){
-    <ion-text color="danger">
-      <p class="error">{{ errorMessage }}</p>
-    </ion-text>
-    }
-
-    <ion-button expand="block" type="submit" [disabled]="loading">
-      @if (loading) {
-        Laadimine...
-      } @else {
-        Loo konto
+      @if (errorMessage){
+      <ion-text color="danger">
+        <p class="error">{{ errorMessage }}</p>
+      </ion-text>
       }
-    </ion-button>
-  </form>
 
-  <p class="login-link">
-    Juba konto?
-    <a (click)="goToLogin()">Logi sisse</a>
-  </p>
+      <ion-button expand="block" type="submit" [disabled]="loading">
+        @if (loading) { Laadimine... } @else { Loo konto }
+      </ion-button>
+    </form>
+
+    <p class="login-link">
+      Juba konto?
+      <a (click)="goToLogin()">Logi sisse</a>
+    </p>
+  </div>
 </ion-content>
