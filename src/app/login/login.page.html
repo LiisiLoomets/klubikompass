@@ -1,7 +1,7 @@
 <ion-content class="login-content">
   <div class="page">
     <div class="login-header">
-      <h1 class="title">Tere tulemast tagasi!</h1>
+      <h1 class="title">Tere tulemast <span class="highlight">tagasi</span></h1>
       <p>Logi sisse, et jätkata</p>
     </div>
 
@@ -36,7 +36,7 @@
       </ion-text>
       }
 
-      <ion-button expand="block" type="submit" [disabled]="loading">
+      <ion-button class="form-button" expand="block" type="submit" [disabled]="loading">
         @if (loading) { Laadimine... } @else { Logi sisse }
       </ion-button>
     </form>

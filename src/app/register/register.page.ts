@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import {
   IonContent,
   IonItem,
-  IonLabel,
   IonInput,
   IonText,
   IonButton,
@@ -23,7 +22,6 @@ import { Router } from '@angular/router';
     CommonModule,
     FormsModule,
     IonItem,
-    IonLabel,
     IonInput,
     IonText,
     IonButton,

@@ -28,23 +28,6 @@
   }
 }
 
-ion-item {
-  --background: var(--ion-item-background);
-  margin-bottom: var(--app-space-md);
-  border-radius: var(--app-radius-sm);
-}
-
-.error {
-  font-size: var(--app-font-size-sm);
-  margin: 0 0 var(--app-space-sm);
-}
-
-ion-button {
-  margin-top: var(--app-space-sm);
-  font-weight: var(--app-font-weight-bold);
-  --border-radius: var(--app-radius-sm);
-}
-
 .login-link {
   text-align: center;
   margin-top: var(--app-space-lg);
