@@ -1,33 +1,95 @@
 import { Injectable } from '@angular/core';
 import { Place } from '@app/models/places.model';
+import { Preferences } from '@capacitor/preferences';
+
+const CACHE_KEY = 'cachedPlaces';
+const MAX_DISTANCE_METERS = 300;
+const MAX_AGE_MINUTES = 60;
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlacesService {
   async getPlaces(lat: number, lng: number): Promise<Place[]> {
-    const query = `
-      [out:json];
-      (
-        node["amenity"="bar"](around:2000,${lat},${lng});
-        node["amenity"="pub"](around:2000,${lat},${lng});
-        node["amenity"="nightclub"](around:2000,${lat},${lng});
-      );
-      out;
-    `;
+    const cached = await this.getCached();
 
-    const response = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      body: query,
+    if (cached) {
+      const distance = this.getDistanceMeters(
+        lat,
+        lng,
+        cached.location.lat,
+        cached.location.lng,
+      );
+      const ageMinutes = (Date.now() - cached.timestamp) / 1000 / 60;
+
+      if (distance < MAX_DISTANCE_METERS && ageMinutes < MAX_AGE_MINUTES) {
+        return cached.data;
+      }
+    }
+
+    const places = await this.fetchFromOverpass(lat, lng);
+
+    await Preferences.set({
+      key: CACHE_KEY,
+      value: JSON.stringify({
+        data: places,
+        timestamp: Date.now(),
+        location: { lat, lng },
+      }),
     });
 
-    const data = await response.json();
+    return places;
+  }
 
-    return data.elements.map((place: any) => ({
-      name: place.tags?.name || 'Tundmatu koht',
-      type: place.tags?.amenity,
-      lat: place.lat,
-      lng: place.lon,
-    }));
+  private async getCached() {
+    const { value } = await Preferences.get({ key: CACHE_KEY });
+    return value ? JSON.parse(value) : null;
+  }
+
+  private async fetchFromOverpass(lat: number, lng: number): Promise<Place[]> {
+    const query = `[out:json][timeout:10];(node["amenity"="bar"](around:2000,${lat},${lng});node["amenity"="pub"](around:2000,${lat},${lng});node["amenity"="nightclub"](around:2000,${lat},${lng}););out;`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const response = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        body: query,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) throw new Error(`Overpass error: ${response.status}`);
+
+      const data = await response.json();
+
+      return data.elements.map((el: any) => ({
+        name: el.tags?.name || 'Tundmatu koht',
+        type: el.tags?.amenity,
+        lat: el.lat,
+        lng: el.lon,
+      }));
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.error('Failed to fetch places: ', err);
+      return [];
+    }
+  }
+  private getDistanceMeters(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number {
+    const R = 6371e3;
+    const toRad = (x: number) => (x * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
   }
 }
