@@ -1,0 +1,24 @@
+ion-label ul,
+ion-label li {
+  font-size: var(--app-font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  color: var(--app-text-secondary);
+  list-style-position: inside;
+}
+
+.sublist {
+  margin-left: 1.5rem;
+}
+
+ion-item {
+  --background: var(--ion-card-background);
+}
+
+h2 {
+  font-size: var(--app-h3-size);
+  font-weight: var(--app-font-weight-bold);
+  color: var(--ion-text-color);
+  margin: 0 0 var(--app-space-xs);
+}
