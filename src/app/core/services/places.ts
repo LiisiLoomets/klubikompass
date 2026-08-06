@@ -29,14 +29,16 @@ export class PlacesService {
 
     const places = await this.fetchFromOverpass(lat, lng);
 
-    await Preferences.set({
-      key: CACHE_KEY,
-      value: JSON.stringify({
-        data: places,
-        timestamp: Date.now(),
-        location: { lat, lng },
-      }),
-    });
+    if (places.length > 0) {
+      await Preferences.set({
+        key: CACHE_KEY,
+        value: JSON.stringify({
+          data: places,
+          timestamp: Date.now(),
+          location: { lat, lng },
+        }),
+      });
+    }
 
     return places;
   }
@@ -50,7 +52,7 @@ export class PlacesService {
     const query = `[out:json][timeout:10];(node["amenity"="bar"](around:2000,${lat},${lng});node["amenity"="pub"](around:2000,${lat},${lng});node["amenity"="nightclub"](around:2000,${lat},${lng}););out;`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
       const response = await fetch('https://overpass-api.de/api/interpreter', {

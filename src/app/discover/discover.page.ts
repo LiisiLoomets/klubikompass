@@ -130,11 +130,15 @@ export class DiscoverPage implements AfterViewInit {
     try {
       this.places = await this.placesService.getPlaces(lat, lng);
 
+      if (this.places.length === 0) {
+        console.warn('No places returned - possible timeout or no results');
+      }
+
       this.places.forEach((place) => {
         L.marker([place.lat, place.lng]).addTo(this.map).bindPopup(`
-          <strong>${place.name}</strong><br>
-          ${place.type}
-        `);
+        <strong>${place.name}</strong><br>
+        ${place.type}
+      `);
       });
     } catch (err) {
       console.error('Failed to load places:', err);
