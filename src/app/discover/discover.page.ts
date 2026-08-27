@@ -14,6 +14,7 @@ import * as L from 'leaflet';
 import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
 import { Place } from '@app/models/places.model';
+import { BucketListService } from '@app/core/services/bucket-list';
 
 const DEFAULT_LAT = 59.437;
 const DEFAULT_LNG = 24.7536;
@@ -37,10 +38,12 @@ const DEFAULT_LNG = 24.7536;
 })
 export class DiscoverPage implements AfterViewInit {
   private map!: L.Map;
+  private savedPlaceKeys = new Set<string>();
 
   constructor(
     private userLocationService: UserLocationService,
     private placesService: PlacesService,
+    private bucketListService: BucketListService,
   ) {}
 
   searchQuery = '';
@@ -130,18 +133,65 @@ export class DiscoverPage implements AfterViewInit {
     try {
       this.places = await this.placesService.getPlaces(lat, lng);
 
-      if (this.places.length === 0) {
-        console.warn('No places returned - possible timeout or no results');
-      }
+      this.savedPlaceKeys = await this.bucketListService.getSavedPlaceKeys();
 
       this.places.forEach((place) => {
-        L.marker([place.lat, place.lng]).addTo(this.map).bindPopup(`
-        <strong>${place.name}</strong><br>
-        ${place.type}
-      `);
+        const marker = L.marker([place.lat, place.lng]).addTo(this.map);
+
+        marker.bindPopup(this.buildPopupHtml(place, this.isSaved(place)));
+
+        marker.on('popupopen', () => {
+          const saved = this.isSaved(place);
+          marker.setPopupContent(this.buildPopupHtml(place, saved));
+
+          if (!saved) {
+            const btn = document.getElementById(`bucket-btn-${place.id}`);
+            if (btn) {
+              btn.addEventListener('click', () =>
+                this.onAddToBucketList(place, marker),
+              );
+            }
+          }
+        });
       });
     } catch (err) {
       console.error('Failed to load places:', err);
+    }
+  }
+
+  private placeKey(place: Place): string {
+    return `${place.lat},${place.lng}`;
+  }
+
+  private isSaved(place: Place): boolean {
+    return this.savedPlaceKeys.has(this.placeKey(place));
+  }
+
+  private buildPopupHtml(place: Place, isSaved: boolean): string {
+    return `
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:180px;">
+        <strong>${place.name}</strong>
+        <small>${place.type}</small>
+        <button id="bucket-btn-${place.id}" ${isSaved ? 'disabled' : ''} style="margin-top:4px;padding:6px;border:none;border-radius:6px;background:var(--ion-color-primary);color:white;font-weight:600;">
+          ${isSaved ? 'Lisatud ✓' : 'Lisa bucket listi'}
+        </button>
+      </div>
+    `;
+  }
+
+  private async onAddToBucketList(place: Place, marker: L.Marker) {
+    try {
+      await this.bucketListService.addToBucketList({
+        name: place.name,
+        address: place.address,
+        lat: place.lat,
+        lng: place.lng,
+      });
+
+      this.savedPlaceKeys.add(this.placeKey(place));
+      marker.setPopupContent(this.buildPopupHtml(place, true));
+    } catch (err) {
+      console.error('Failed to add to bucket list:', err);
     }
   }
 }
