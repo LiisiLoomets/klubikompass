@@ -41,4 +41,29 @@ export class BucketListService {
 
     return new Set(data.map((row) => `${row.latitude},${row.longitude}`));
   }
+
+  async getBucketList() {
+    const { data: userData } = await this.supabaseService.client.auth.getUser();
+    if (!userData.user) return [];
+
+    const { data, error } = await this.supabaseService.client
+      .from('bucket_lists')
+      .select('*')
+      .eq('user_id', userData.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch bucket list:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  async removeFromBucketList(id: string) {
+    return this.supabaseService.client
+      .from('bucket_lists')
+      .delete()
+      .eq('id', id);
+  }
 }

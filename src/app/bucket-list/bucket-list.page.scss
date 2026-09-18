@@ -1,0 +1,84 @@
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+  color: var(--ion-color-medium);
+}
+
+.empty-subtext {
+  font-size: var(--app-font-size-sm);
+  margin-top: var(--app-space-xs);
+}
+
+.bucket-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-sm);
+}
+
+.bucket-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-md);
+}
+
+.bucket-info {
+  h2 {
+    margin: 0 0 2px;
+    font-size: var(--app-h3-size);
+    color: var(--ion-text-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--app-font-size-sm);
+    color: var(--app-text-secondary);
+  }
+}
+
+.bucket-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-xs);
+  flex-shrink: 0;
+}
+
+.checkin-btn {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --border-radius: var(--app-radius-sm);
+  font-size: var(--app-font-size-sm);
+  height: 32px;
+  margin: 0;
+}
+
+.delete-btn {
+  --background: var(--ion-item-background);
+  --border-radius: 50%;
+  --color: var(--ion-color-secondary);
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--ion-border-color);
+  width: 36px;
+  height: 36px;
+  margin: 0;
+}
+
+.delete-btn ion-icon {
+  font-size: 20px;
+}
+
+::ng-deep .delete-btn ion-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

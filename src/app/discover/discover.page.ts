@@ -74,6 +74,10 @@ export class DiscoverPage implements AfterViewInit {
     this.showResults = false;
   }
 
+  async ionViewWillEnter() {
+    this.savedPlaceKeys = await this.bucketListService.getSavedPlaceKeys();
+  }
+
   async ngAfterViewInit() {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
 

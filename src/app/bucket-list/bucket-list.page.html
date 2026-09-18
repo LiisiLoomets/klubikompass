@@ -2,6 +2,42 @@
 
 <ion-content [fullscreen]="true">
   <div class="page">
-    <p>Siia tuleb bucket list</p>
+
+    @if (loading) {
+      <div class="loading-state">
+        <ion-spinner></ion-spinner>
+      </div>
+    } @else if (items.length === 0) {
+      <div class="empty-state">
+        <p>Sinu bucket list on veel tühi</p>
+        <p class="empty-subtext">Lisa kohti avastamise lehelt</p>
+      </div>
+    } @else {
+      <div class="bucket-list">
+        @for (item of items; track item.id) {
+          <div class="bucket-card">
+            <div class="bucket-info">
+              <h2>{{ item.place_name }}</h2>
+              <p>
+                @if (item.address) {
+                  {{ item.address }} •
+                }
+                bar
+              </p>
+            </div>
+
+            <div class="bucket-actions">
+              <ion-button class="checkin-btn" size="small" (click)="goToCheckIn(item)">
+                CHECK-IN
+              </ion-button>
+              <ion-button class="delete-btn" fill="clear" (click)="removeItem(item.id)">
+                <ion-icon name="trash-outline" style="width: 20px; height: 20px;"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
   </div>
 </ion-content>
