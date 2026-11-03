@@ -64,7 +64,7 @@ export class BucketListPage {
   }
 
   goToCheckIn(item: BucketListItem) {
-    this.router.navigate(['/check-in'], {
+    this.router.navigate(['/tabs/check-in'], {
       queryParams: {
         placeName: item.place_name,
         address: item.address,
