@@ -4,5 +4,6 @@ export interface Place {
   type: string;
   lat: number;
   lng: number;
+  address?: string;
   createdAt?: string;
 }

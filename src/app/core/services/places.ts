@@ -68,10 +68,12 @@ export class PlacesService {
       const data = await response.json();
 
       return data.elements.map((el: any) => ({
+        id: String(el.id),
         name: el.tags?.name || 'Tundmatu koht',
         type: el.tags?.amenity,
         lat: el.lat,
         lng: el.lon,
+        address: this.getAddress(el.tags),
       }));
     } catch (err) {
       clearTimeout(timeoutId);
@@ -79,6 +81,14 @@ export class PlacesService {
       return [];
     }
   }
+
+  private getAddress(tags: any): string | undefined {
+    const parts: string[] = [];
+    if (tags?.['addr:street']) parts.push(tags['addr:street']);
+    if (tags?.['addr:housenumber']) parts.push(tags['addr:housenumber']);
+    return parts.length ? parts.join(', ') : undefined;
+  }
+
   private getDistanceMeters(
     lat1: number,
     lon1: number,
