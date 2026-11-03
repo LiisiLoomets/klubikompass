@@ -47,3 +47,32 @@ ion-searchbar {
 .place-results ion-note {
   color: var(--ion-color-primary);
 }
+
+.chip-group-label {
+  margin: var(--app-space-md) 0 var(--app-space-xs);
+  font-size: var(--app-font-size-sm);
+  color: var(--ion-text-color);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-sm);
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-xl);
+  background: transparent;
+  color: var(--app-text-secondary);
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-medium);
+  cursor: pointer;
+
+  &.selected {
+    background: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+    color: white;
+  }
+}

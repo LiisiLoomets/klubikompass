@@ -23,6 +23,11 @@ interface SelectedPlace {
   lng: number;
 }
 
+interface Chip {
+  label: string;
+  icon?: string; 
+}
+
 @Component({
   selector: 'app-check-in',
   templateUrl: './check-in.page.html',
@@ -50,6 +55,20 @@ export class CheckInPage implements OnInit {
   today = new Date().toLocaleDateString('sv-SE');
   date = this.today;
 
+  readonly moodPresets: Chip[] = [
+    { label: 'Rõõmus', icon: 'fa-regular fa-face-grin' },
+    { label: 'Chill', icon: 'fa-regular fa-hand-peace' },
+    { label: 'Naljakas', icon: 'fa-regular fa-face-grin-tongue-squint' },
+  ];
+
+  readonly drinkPresets: Chip[] = [
+    { label: 'Longero', icon: 'fa-solid fa-glass-water' },
+    { label: 'Õlu', icon: 'fa-solid fa-beer-mug-empty' },
+    { label: 'Vein', icon: 'fa-solid fa-wine-glass' },
+  ];
+  selectedMoods = new Set<string>();
+  selectedDrinks = new Set<string>();
+
   constructor(
     private route: ActivatedRoute,
     private userLocationService: UserLocationService,
@@ -57,7 +76,6 @@ export class CheckInPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Pre-fill when coming from the bucket list
     this.route.queryParamMap.subscribe((params) => {
       const name = params.get('placeName');
       if (!name) return;
@@ -100,7 +118,6 @@ export class CheckInPage implements OnInit {
     this.searchQuery = value ?? '';
     this.showResults = true;
 
-    // typing something different means the earlier pick no longer applies
     if (this.selectedPlace && this.searchQuery !== this.selectedPlace.name) {
       this.selectedPlace = null;
     }
@@ -115,5 +132,21 @@ export class CheckInPage implements OnInit {
     };
     this.searchQuery = place.name;
     this.showResults = false;
+  }
+
+  toggleMood(mood: string) {
+    this.toggle(this.selectedMoods, mood);
+  }
+
+  toggleDrink(drink: string) {
+    this.toggle(this.selectedDrinks, drink);
+  }
+
+  private toggle(set: Set<string>, value: string) {
+    if (set.has(value)) {
+      set.delete(value);
+    } else {
+      set.add(value);
+    }
   }
 }

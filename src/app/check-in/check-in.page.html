@@ -2,27 +2,25 @@
 
 <ion-content [fullscreen]="true">
   <div class="page card-stack">
-
     <div class="card">
-      <h2 class="card-title">
-        <i class="fa-solid fa-location-dot"></i> Koht
-      </h2>
+      <h2 class="card-title"><i class="fa-solid fa-location-dot"></i> Koht</h2>
 
       <ion-searchbar
         [value]="searchQuery"
         (ionInput)="onSearchChange($event.detail.value)"
-        placeholder="Otsi baare ja klubisid">
+        placeholder="Otsi baare ja klubisid"
+      >
       </ion-searchbar>
 
       @if (showResults && filteredPlaces.length > 0) {
-        <ion-list class="place-results">
-          @for (place of filteredPlaces; track place.id) {
-            <ion-item button (click)="selectPlace(place)">
-              <ion-label>{{ place.name }}</ion-label>
-              <ion-note slot="end">{{ place.type }}</ion-note>
-            </ion-item>
-          }
-        </ion-list>
+      <ion-list class="place-results">
+        @for (place of filteredPlaces; track place.id) {
+        <ion-item button (click)="selectPlace(place)">
+          <ion-label>{{ place.name }}</ion-label>
+          <ion-note slot="end">{{ place.type }}</ion-note>
+        </ion-item>
+        }
+      </ion-list>
       }
 
       <h2 class="card-title date-title">
@@ -30,16 +28,47 @@
       </h2>
 
       <ion-item class="form-input">
-        <ion-input
-          type="date"
-          [(ngModel)]="date"
-          [max]="today"
-          name="date">
+        <ion-input type="date" [(ngModel)]="date" [max]="today" name="date">
         </ion-input>
       </ion-item>
     </div>
 
-    
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fa-regular fa-face-smile"></i> Elamus
+      </h2>
 
+      <p class="chip-group-label">Tuju</p>
+      <div class="chip-row">
+        @for (mood of moodPresets; track mood.label) {
+        <button
+          type="button"
+          class="chip"
+          [class.selected]="selectedMoods.has(mood.label)"
+          (click)="toggleMood(mood.label)"
+        >
+          @if (mood.icon) {
+          <i [class]="mood.icon"></i>
+          } {{ mood.label }}
+        </button>
+        }
+      </div>
+
+      <p class="chip-group-label">Joogid</p>
+      <div class="chip-row">
+        @for (drink of drinkPresets; track drink.label) {
+        <button
+          type="button"
+          class="chip"
+          [class.selected]="selectedDrinks.has(drink.label)"
+          (click)="toggleDrink(drink.label)"
+        >
+          @if (drink.icon) {
+          <i [class]="drink.icon"></i>
+          } {{ drink.label }}
+        </button>
+        }
+      </div>
+    </div>
   </div>
 </ion-content>
