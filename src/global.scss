@@ -79,3 +79,34 @@ body {
   font-weight: var(--app-font-weight-bold);
   --border-radius: var(--app-radius-sm);
 }
+
+.card {
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-lg);
+}
+
+.card--compact {
+  padding: var(--app-space-md);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-sm);
+  margin: 0 0 var(--app-space-sm);
+  font-size: var(--app-h3-size);
+  font-weight: var(--app-font-weight-bold);
+  color: var(--ion-text-color);
+
+  i {
+    color: var(--ion-color-tertiary);
+  }
+}
+
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-lg);
+}
