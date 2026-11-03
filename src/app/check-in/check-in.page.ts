@@ -1,18 +1,119 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular/standalone';
+import { ActivatedRoute } from '@angular/router';
+import {
+  IonContent,
+  IonSearchbar,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonNote,
+  IonInput,
+} from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
+import { UserLocationService } from '@app/core/services/user-location';
+import { PlacesService } from '@app/core/services/places';
+import { Place } from '@app/models/places.model';
+
+interface SelectedPlace {
+  name: string;
+  address?: string;
+  lat: number;
+  lng: number;
+}
 
 @Component({
   selector: 'app-check-in',
   templateUrl: './check-in.page.html',
   styleUrls: ['./check-in.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, HeaderComponent],
+  imports: [
+    IonContent,
+    IonSearchbar,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonNote,
+    IonInput,
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+  ],
 })
 export class CheckInPage implements OnInit {
-  constructor() {}
+  places: Place[] = [];
+  searchQuery = '';
+  showResults = false;
+  selectedPlace: SelectedPlace | null = null;
 
-  ngOnInit() {}
+  today = new Date().toLocaleDateString('sv-SE');
+  date = this.today;
+
+  constructor(
+    private route: ActivatedRoute,
+    private userLocationService: UserLocationService,
+    private placesService: PlacesService,
+  ) {}
+
+  ngOnInit() {
+    // Pre-fill when coming from the bucket list
+    this.route.queryParamMap.subscribe((params) => {
+      const name = params.get('placeName');
+      if (!name) return;
+
+      this.selectedPlace = {
+        name,
+        address: params.get('address') ?? undefined,
+        lat: Number(params.get('lat')),
+        lng: Number(params.get('lng')),
+      };
+      this.searchQuery = name;
+      this.showResults = false;
+    });
+
+    this.loadPlaces();
+  }
+
+  private async loadPlaces() {
+    try {
+      const position = await this.userLocationService.getCurrentPosition();
+      this.places = await this.placesService.getPlaces(
+        position.coords.latitude,
+        position.coords.longitude,
+      );
+    } catch (err) {
+      console.error('Failed to load places for check-in:', err);
+    }
+  }
+
+  get filteredPlaces(): Place[] {
+    const query = this.searchQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    return this.places
+      .filter((place) => place.name.toLowerCase().includes(query))
+      .slice(0, 8);
+  }
+
+  onSearchChange(value: string | null | undefined) {
+    this.searchQuery = value ?? '';
+    this.showResults = true;
+
+    // typing something different means the earlier pick no longer applies
+    if (this.selectedPlace && this.searchQuery !== this.selectedPlace.name) {
+      this.selectedPlace = null;
+    }
+  }
+
+  selectPlace(place: Place) {
+    this.selectedPlace = {
+      name: place.name,
+      address: place.address,
+      lat: place.lat,
+      lng: place.lng,
+    };
+    this.searchQuery = place.name;
+    this.showResults = false;
+  }
 }

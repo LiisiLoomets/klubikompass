@@ -1,0 +1,49 @@
+.form-card {
+  background: var(--ion-card-background);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-lg);
+}
+
+.form-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-sm);
+  margin: 0 0 var(--app-space-sm);
+  font-size: var(--app-h3-size);
+  font-weight: var(--app-font-weight-bold);
+  color: var(--ion-text-color);
+
+  i {
+    color: var(--ion-color-tertiary);
+  }
+}
+
+.date-title {
+  margin-top: var(--app-space-lg);
+}
+
+ion-searchbar {
+  --background: var(--ion-item-background);
+  --color: var(--ion-text-color);
+  --border-radius: var(--app-radius-sm);
+  padding: 0;
+}
+
+.place-results {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: var(--app-space-xs);
+  border: 1px solid var(--ion-border-color);
+  border-radius: var(--app-radius-sm);
+  background: var(--ion-item-background);
+}
+
+.place-results ion-item {
+  --background: var(--ion-item-background);
+  --color: var(--ion-text-color);
+}
+
+.place-results ion-note {
+  color: var(--ion-color-primary);
+}
