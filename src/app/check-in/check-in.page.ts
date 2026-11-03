@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -28,6 +28,8 @@ interface Chip {
   icon?: string; 
 }
 
+type ChipGroup = 'mood' | 'drink';
+
 @Component({
   selector: 'app-check-in',
   templateUrl: './check-in.page.html',
@@ -47,6 +49,8 @@ interface Chip {
   ],
 })
 export class CheckInPage implements OnInit {
+  @ViewChild('chipInput') chipInput?: ElementRef<HTMLInputElement>;
+
   places: Place[] = [];
   searchQuery = '';
   showResults = false;
@@ -55,19 +59,23 @@ export class CheckInPage implements OnInit {
   today = new Date().toLocaleDateString('sv-SE');
   date = this.today;
 
-  readonly moodPresets: Chip[] = [
+  moodChips: Chip[] = [
     { label: 'Rõõmus', icon: 'fa-regular fa-face-grin' },
     { label: 'Chill', icon: 'fa-regular fa-hand-peace' },
     { label: 'Naljakas', icon: 'fa-regular fa-face-grin-tongue-squint' },
   ];
 
-  readonly drinkPresets: Chip[] = [
+  drinkChips: Chip[] = [
     { label: 'Longero', icon: 'fa-solid fa-glass-water' },
     { label: 'Õlu', icon: 'fa-solid fa-beer-mug-empty' },
     { label: 'Vein', icon: 'fa-solid fa-wine-glass' },
   ];
+
   selectedMoods = new Set<string>();
   selectedDrinks = new Set<string>();
+
+  addingGroup: ChipGroup | null = null;
+  newChipText = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -148,5 +156,50 @@ export class CheckInPage implements OnInit {
     } else {
       set.add(value);
     }
+  }
+
+  startAdding(group: ChipGroup) {
+    this.addingGroup = group;
+    this.newChipText = '';
+
+    setTimeout(() => this.chipInput?.nativeElement.focus());
+  }
+
+  cancelAdding() {
+    this.addingGroup = null;
+    this.newChipText = '';
+  }
+
+  confirmAdding() {
+    const group = this.addingGroup;
+    if (!group) return;
+
+    const label = this.normalizeLabel(this.newChipText);
+    if (!label) {
+      this.cancelAdding();
+      return;
+    }
+
+    const chips = group === 'mood' ? this.moodChips : this.drinkChips;
+    const selected = group === 'mood' ? this.selectedMoods : this.selectedDrinks;
+
+    const existing = chips.find(
+      (chip) => chip.label.toLowerCase() === label.toLowerCase(),
+    );
+
+    if (existing) {
+      selected.add(existing.label);
+    } else {
+      chips.push({ label });
+      selected.add(label);
+    }
+
+    this.cancelAdding();
+  }
+
+  private normalizeLabel(text: string): string {
+    const clean = text.trim().replace(/\s+/g, ' ');
+    if(!clean) return '';
+    return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
   }
 }

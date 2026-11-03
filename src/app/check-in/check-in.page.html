@@ -40,7 +40,7 @@
 
       <p class="chip-group-label">Tuju</p>
       <div class="chip-row">
-        @for (mood of moodPresets; track mood.label) {
+        @for (mood of moodChips; track mood.label) {
         <button
           type="button"
           class="chip"
@@ -52,11 +52,34 @@
           } {{ mood.label }}
         </button>
         }
+
+        @if (addingGroup === 'mood') {
+          <span class="chip-input">
+            <input 
+              #chipInput
+              type="text"
+              maxLength="20"
+              placeholder="Uus tuju"
+              [(ngModel)]="newChipText"
+              (keydown.enter)="confirmAdding()"
+              (keydown.escape)="cancelAdding()" />
+            <button type="button" aria-label="Lisa" (click)="confirmAdding()">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button type="button" aria-label="Tühista" (click)="cancelAdding()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        } @else {
+          <button type="button" class="chip chip-add" (click)="startAdding('mood')">
+            <i class="fa-solid fa-plus"></i> Lisa
+          </button>
+        }
       </div>
 
       <p class="chip-group-label">Joogid</p>
       <div class="chip-row">
-        @for (drink of drinkPresets; track drink.label) {
+        @for (drink of drinkChips; track drink.label) {
         <button
           type="button"
           class="chip"
@@ -67,6 +90,29 @@
           <i [class]="drink.icon"></i>
           } {{ drink.label }}
         </button>
+        }
+
+        @if (addingGroup === 'drink') {
+          <span class="chip-input">
+            <input 
+              #chipInput
+              type="text"
+              maxLength="20"
+              placeholder="Uus jook"
+              [(ngModel)]="newChipText"
+              (keydown.enter)="confirmAdding()"
+              (keydown.escape)="cancelAdding()" />
+            <button type="button" aria-label="Lisa" (click)="confirmAdding()">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button type="button" aria-label="Tühista" (click)="cancelAdding()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        } @else {
+          <button type="button" class="chip chip-add" (click)="startAdding('drink')">
+            <i class="fa-solid fa-plus"></i> Lisa
+          </button>
         }
       </div>
     </div>
