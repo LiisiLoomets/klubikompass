@@ -115,6 +115,18 @@
           </button>
         }
       </div>
+
+      <p class="chip-group-label">Märkmed</p>
+      <ion-item class="form-input">
+        <ion-textarea
+        [(ngModel)]="note"
+        name="note"
+        [autoGrow]="true"
+        rows="2"
+        maxlength="280"
+        placeholder="Lisa lühike kommentaar">
+        </ion-textarea>
+      </ion-item>
     </div>
   </div>
 </ion-content>

@@ -10,6 +10,7 @@ import {
   IonLabel,
   IonNote,
   IonInput,
+  IonTextarea,
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
 import { UserLocationService } from '@app/core/services/user-location';
@@ -25,7 +26,7 @@ interface SelectedPlace {
 
 interface Chip {
   label: string;
-  icon?: string; 
+  icon?: string;
 }
 
 type ChipGroup = 'mood' | 'drink';
@@ -46,6 +47,7 @@ type ChipGroup = 'mood' | 'drink';
     CommonModule,
     FormsModule,
     HeaderComponent,
+    IonTextarea,
   ],
 })
 export class CheckInPage implements OnInit {
@@ -73,6 +75,8 @@ export class CheckInPage implements OnInit {
 
   selectedMoods = new Set<string>();
   selectedDrinks = new Set<string>();
+
+  note = '';
 
   addingGroup: ChipGroup | null = null;
   newChipText = '';
@@ -181,7 +185,8 @@ export class CheckInPage implements OnInit {
     }
 
     const chips = group === 'mood' ? this.moodChips : this.drinkChips;
-    const selected = group === 'mood' ? this.selectedMoods : this.selectedDrinks;
+    const selected =
+      group === 'mood' ? this.selectedMoods : this.selectedDrinks;
 
     const existing = chips.find(
       (chip) => chip.label.toLowerCase() === label.toLowerCase(),
@@ -199,7 +204,7 @@ export class CheckInPage implements OnInit {
 
   private normalizeLabel(text: string): string {
     const clean = text.trim().replace(/\s+/g, ' ');
-    if(!clean) return '';
+    if (!clean) return '';
     return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
   }
 }
