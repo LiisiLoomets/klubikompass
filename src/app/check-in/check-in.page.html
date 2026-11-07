@@ -129,6 +129,32 @@
       </ion-item>
     </div>
 
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fa-regular fa-camera"></i> Pilt
+      </h2>
+
+      @if (photoPreview) {
+        <div class="photo-preview">
+          <img [src]="photoPreview" alt="Check-in pilt" />
+          <button 
+            type="button"
+            class="photo-remove"
+            aria-label="Eemalda pilt"
+            (click)="removePhoto()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="photo-add" (click)="pickPhoto()">
+          <i class="fa-regular fa-camera"></i>
+          <span>
+            <strong>Lisa pilt</strong>
+          </span>
+        </button>
+      }
+    </div>
+
     @if (errorMessage) {
       <ion-text color="danger">
         <p class="error">{{ errorMessage }}</p>

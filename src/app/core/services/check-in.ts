@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase';
 
+const PHOTO_BUCKET = 'check-in-photos';
+
 export interface NewCheckIn {
   placeName: string;
   address?: string;
@@ -10,6 +12,7 @@ export interface NewCheckIn {
   visitedAt: string;
   moods: string[];
   drinks: string[];
+  photo?: Blob;
 }
 
 @Injectable({
@@ -21,34 +24,44 @@ export class CheckInService {
   async createCheckIn(input: NewCheckIn) {
     const client = this.supabaseService.client;
 
-    const { data: checkin, error } = await client
-      .from('check_ins')
-      .insert({
-        place_name: input.placeName,
-        address: input.address ?? null,
-        latitude: input.lat,
-        longitude: input.lng,
-        note: input.note?.trim() || null,
-        visited_at: input.visitedAt,
-      })
-      .select('id')
-      .single();
-
-    if (error || !checkin) {
-      throw error ?? new Error('Check in was not created');
-    }
-
-    const moodRows = input.moods.map((mood) => ({
-      check_in_id: checkin.id,
-      mood
-    }));
-
-    const drinkRows = input.drinks.map((drink) => ({
-      check_in_id: checkin.id,
-      drink
-    }));
+    let imagePath: string | null = null;
+    let checkInId: string | null = null;
 
     try {
+      if (input.photo) {
+        imagePath = await this.uploadPhoto(input.photo);
+      }
+
+      const { data: checkIn, error } = await client
+        .from('check_ins')
+        .insert({
+          place_name: input.placeName,
+          address: input.address ?? null,
+          latitude: input.lat,
+          longitude: input.lng,
+          note: input.note?.trim() || null,
+          visited_at: input.visitedAt,
+          image_url: imagePath,
+        })
+        .select('id')
+        .single();
+
+      if (error || !checkIn) {
+        throw error ?? new Error('Check in was not created');
+      }
+
+      checkInId = checkIn.id;
+
+      const moodRows = input.moods.map((mood) => ({
+        check_in_id: checkIn.id,
+        mood,
+      }));
+
+      const drinkRows = input.drinks.map((drink) => ({
+        check_in_id: checkIn.id,
+        drink,
+      }));
+
       if (moodRows.length) {
         const { error: moodError } = await client
           .from('check_in_moods')
@@ -61,10 +74,32 @@ export class CheckInService {
           .insert(drinkRows);
         if (drinkError) throw drinkError;
       }
+      return checkIn.id;
     } catch (err) {
-      await client.from('check_ins').delete().eq('id', checkin.id);
+      if (checkInId) {
+        await client.from('check_ins').delete().eq('id', checkInId);
+      }
+      if (imagePath) {
+        await client.storage.from(PHOTO_BUCKET).remove([imagePath]);
+      }
       throw err;
     }
-    return checkin.id;
+  }
+
+  private async uploadPhoto(photo: Blob): Promise<string> {
+    const client = this.supabaseService.client;
+
+    const { data: userData } = await client.auth.getUser();
+    if (!userData.user) throw new Error('Not logged in');
+
+    const path = `${userData.user.id}/${crypto.randomUUID()}.jpg`;
+
+    const { error } = await client.storage
+      .from(PHOTO_BUCKET)
+      .upload(path, photo, { contentType: photo.type || 'image/jpeg' });
+    
+      if (error) throw error;
+
+    return path;
   }
 }

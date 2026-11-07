@@ -90,3 +90,60 @@ ion-searchbar {
     color: var(--ion-color-primary);
   }
 }
+
+.photo-add {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-md);
+  width: 100%;
+  padding: var(--app-space-lg);
+  border: 1px dashed var(--ion-color-secondary);
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  color: var(--ion-text-color);
+  text-align: left;
+  cursor: pointer;
+
+  i {
+    font-size: 1.25rem;
+    color: var(--ion-color-secondary);
+  }
+
+  small {
+    color: var(--app-text-secondary);
+    font-size: 0.75rem;
+  }
+}
+
+.photo-preview {
+  position: relative;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 360px;
+    object-fit: contain;
+  }
+}
+
+.photo-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+}
+
+.photo-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  cursor: pointer;
+}

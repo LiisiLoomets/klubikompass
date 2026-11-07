@@ -2,7 +2,21 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, IonSearchbar, IonList, IonItem, IonLabel, IonNote, IonInput, IonTextarea, ToastController, IonText, IonButton } from '@ionic/angular/standalone';
+import {
+  IonContent,
+  IonSearchbar,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonNote,
+  IonInput,
+  IonTextarea,
+  ToastController,
+  IonText,
+  IonButton,
+  ActionSheetController,
+} from '@ionic/angular/standalone';
+import { Camera } from '@capacitor/camera';
 import { HeaderComponent } from '@app/components/header/header.component';
 import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
@@ -35,6 +49,8 @@ const DRINK_PRESETS: Chip[] = [
   { label: 'Vein', icon: 'fa-solid fa-wine-glass' },
 ];
 
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
 @Component({
   selector: 'app-check-in',
   templateUrl: './check-in.page.html',
@@ -53,8 +69,8 @@ const DRINK_PRESETS: Chip[] = [
     HeaderComponent,
     IonTextarea,
     IonText,
-    IonButton
-],
+    IonButton,
+  ],
 })
 export class CheckInPage implements OnInit {
   @ViewChild('chipInput') chipInput?: ElementRef<HTMLInputElement>;
@@ -75,6 +91,9 @@ export class CheckInPage implements OnInit {
 
   note = '';
 
+  photoBlob: Blob | null = null;
+  photoPreview: string | null = null;
+
   addingGroup: ChipGroup | null = null;
   newChipText = '';
 
@@ -88,6 +107,7 @@ export class CheckInPage implements OnInit {
     private userLocationService: UserLocationService,
     private placesService: PlacesService,
     private checkInService: CheckInService,
+    private actionSheetController: ActionSheetController,
   ) {}
 
   ngOnInit() {
@@ -211,6 +231,70 @@ export class CheckInPage implements OnInit {
     return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
   }
 
+  async pickPhoto() {
+    const sheet = await this.actionSheetController.create({
+      header: 'Lisa pilt',
+      buttons: [
+        { text: 'Tee pilt', data: { source: 'camera' } },
+        { text: 'Vali galeriist', data: { source: 'gallery' } },
+        { text: 'Tühista', role: 'cancel' },
+      ],
+    });
+    await sheet.present();
+
+    const { data } = await sheet.onDidDismiss();
+    if (!data?.source) return;
+
+    try {
+      const options = {
+        quality: 70,
+        targetWidth: 1280,
+        targetHeight: 1280,
+        editable: 'in-app' as const,
+      };
+
+      const result =
+        data.source === 'camera'
+          ? await Camera.takePhoto(options)
+          : (await Camera.chooseFromGallery(options)).results[0];
+
+      if (!result?.webPath) return;
+
+      const response = await fetch(result.webPath);
+      const blob = await response.blob();
+
+      if (blob.size > MAX_PHOTO_BYTES) {
+        this.errorMessage = 'Pilt liiga suur (max 5 MB)';
+        return;
+      }
+
+      this.photoBlob = blob;
+      this.photoPreview = result.webPath;
+      this.errorMessage = '';
+    } catch (err: any) {
+      if (this.isCancelled(err)) return;
+
+      console.error('Photo failed: ', err);
+      this.errorMessage = 'Pildi lisamine ebaõnnestus';
+    }
+  }
+
+  private isCancelled(err: any): boolean {
+    const code = err?.code;
+    return (
+      code === 'OS-PLUG-CAMR-0006' ||
+      code === 'OS-PLUG-CAMR-0020' ||
+      String(err?.message ?? '')
+        .toLowerCase()
+        .includes('cancel')
+    );
+  }
+
+  removePhoto() {
+    this.photoBlob = null;
+    this.photoPreview = null;
+  }
+
   async onSave() {
     this.errorMessage = '';
 
@@ -238,6 +322,7 @@ export class CheckInPage implements OnInit {
         visitedAt: this.date,
         moods: [...this.selectedMoods],
         drinks: [...this.selectedDrinks],
+        photo: this.photoBlob ?? undefined,
       });
 
       this.resetForm();
@@ -252,7 +337,7 @@ export class CheckInPage implements OnInit {
       await toast.present();
     } catch (err) {
       console.error('Failed to save check-in: ', err);
-      this.errorMessage = 'Salvestamine ebaõnnestus. Proovi uuesti.'
+      this.errorMessage = 'Salvestamine ebaõnnestus. Proovi uuesti.';
     } finally {
       this.saving = false;
     }
@@ -272,6 +357,7 @@ export class CheckInPage implements OnInit {
     this.selectedDrinks.clear();
 
     this.note = '';
+    this.removePhoto();
     this.cancelAdding();
   }
 }
