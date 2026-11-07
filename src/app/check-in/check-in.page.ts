@@ -22,6 +22,7 @@ import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
 import { CheckInService } from '@app/core/services/check-in';
 import { Place } from '@app/models/places.model';
+import { compressImage } from '@app/core/utils/image';
 
 interface SelectedPlace {
   name: string;
@@ -261,15 +262,16 @@ export class CheckInPage implements OnInit {
       if (!result?.webPath) return;
 
       const response = await fetch(result.webPath);
-      const blob = await response.blob();
+      const blob = await compressImage(await response.blob());
 
       if (blob.size > MAX_PHOTO_BYTES) {
         this.errorMessage = 'Pilt liiga suur (max 5 MB)';
         return;
       }
 
+      this.removePhoto();
       this.photoBlob = blob;
-      this.photoPreview = result.webPath;
+      this.photoPreview = URL.createObjectURL(blob);
       this.errorMessage = '';
     } catch (err: any) {
       if (this.isCancelled(err)) return;
@@ -291,6 +293,7 @@ export class CheckInPage implements OnInit {
   }
 
   removePhoto() {
+    if (this.photoPreview) URL.revokeObjectURL(this.photoPreview);
     this.photoBlob = null;
     this.photoPreview = null;
   }
