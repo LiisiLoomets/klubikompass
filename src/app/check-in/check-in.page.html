@@ -128,5 +128,20 @@
         </ion-textarea>
       </ion-item>
     </div>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="error">{{ errorMessage }}</p>
+      </ion-text>
+    }
+
+    <ion-button 
+      class="form-button"
+      expand="block"
+      [disabled]="saving"
+      (click)="onSave()">
+      @if (saving) { Salvestan... } @else { SALVESTA CHECK-IN }
+    </ion-button>
+
   </div>
 </ion-content>

@@ -1,20 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import {
-  IonContent,
-  IonSearchbar,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonNote,
-  IonInput,
-  IonTextarea,
-} from '@ionic/angular/standalone';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonContent, IonSearchbar, IonList, IonItem, IonLabel, IonNote, IonInput, IonTextarea, ToastController, IonText, IonButton } from '@ionic/angular/standalone';
 import { HeaderComponent } from '@app/components/header/header.component';
 import { UserLocationService } from '@app/core/services/user-location';
 import { PlacesService } from '@app/core/services/places';
+import { CheckInService } from '@app/core/services/check-in';
 import { Place } from '@app/models/places.model';
 
 interface SelectedPlace {
@@ -30,6 +22,18 @@ interface Chip {
 }
 
 type ChipGroup = 'mood' | 'drink';
+
+const MOOD_PRESETS: Chip[] = [
+  { label: 'Rõõmus', icon: 'fa-regular fa-face-grin' },
+  { label: 'Chill', icon: 'fa-regular fa-hand-peace' },
+  { label: 'Naljakas', icon: 'fa-regular fa-face-grin-tongue-squint' },
+];
+
+const DRINK_PRESETS: Chip[] = [
+  { label: 'Longero', icon: 'fa-solid fa-glass-water' },
+  { label: 'Õlu', icon: 'fa-solid fa-beer-mug-empty' },
+  { label: 'Vein', icon: 'fa-solid fa-wine-glass' },
+];
 
 @Component({
   selector: 'app-check-in',
@@ -48,7 +52,9 @@ type ChipGroup = 'mood' | 'drink';
     FormsModule,
     HeaderComponent,
     IonTextarea,
-  ],
+    IonText,
+    IonButton
+],
 })
 export class CheckInPage implements OnInit {
   @ViewChild('chipInput') chipInput?: ElementRef<HTMLInputElement>;
@@ -61,17 +67,8 @@ export class CheckInPage implements OnInit {
   today = new Date().toLocaleDateString('sv-SE');
   date = this.today;
 
-  moodChips: Chip[] = [
-    { label: 'Rõõmus', icon: 'fa-regular fa-face-grin' },
-    { label: 'Chill', icon: 'fa-regular fa-hand-peace' },
-    { label: 'Naljakas', icon: 'fa-regular fa-face-grin-tongue-squint' },
-  ];
-
-  drinkChips: Chip[] = [
-    { label: 'Longero', icon: 'fa-solid fa-glass-water' },
-    { label: 'Õlu', icon: 'fa-solid fa-beer-mug-empty' },
-    { label: 'Vein', icon: 'fa-solid fa-wine-glass' },
-  ];
+  moodChips: Chip[] = [...MOOD_PRESETS];
+  drinkChips: Chip[] = [...DRINK_PRESETS];
 
   selectedMoods = new Set<string>();
   selectedDrinks = new Set<string>();
@@ -81,10 +78,16 @@ export class CheckInPage implements OnInit {
   addingGroup: ChipGroup | null = null;
   newChipText = '';
 
+  saving = false;
+  errorMessage = '';
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
+    private toastController: ToastController,
     private userLocationService: UserLocationService,
     private placesService: PlacesService,
+    private checkInService: CheckInService,
   ) {}
 
   ngOnInit() {
@@ -206,5 +209,69 @@ export class CheckInPage implements OnInit {
     const clean = text.trim().replace(/\s+/g, ' ');
     if (!clean) return '';
     return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+  }
+
+  async onSave() {
+    this.errorMessage = '';
+
+    const place = this.selectedPlace;
+
+    if (!place) {
+      this.errorMessage = 'Vali koht';
+      return;
+    }
+
+    if (!this.date) {
+      this.errorMessage = 'Vali kuupäev';
+      return;
+    }
+
+    this.saving = true;
+
+    try {
+      await this.checkInService.createCheckIn({
+        placeName: place.name,
+        address: place.address,
+        lat: place.lat,
+        lng: place.lng,
+        note: this.note,
+        visitedAt: this.date,
+        moods: [...this.selectedMoods],
+        drinks: [...this.selectedDrinks],
+      });
+
+      this.resetForm();
+
+      this.router.navigate(['/tabs/check-in'], { replaceUrl: true });
+
+      const toast = await this.toastController.create({
+        message: 'Check-in salvestatud',
+        duration: 2000,
+        position: 'bottom',
+      });
+      await toast.present();
+    } catch (err) {
+      console.error('Failed to save check-in: ', err);
+      this.errorMessage = 'Salvestamine ebaõnnestus. Proovi uuesti.'
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  private resetForm() {
+    this.selectedPlace = null;
+    this.searchQuery = '';
+    this.showResults = false;
+
+    this.today = new Date().toLocaleDateString('sv-SE');
+    this.date = this.today;
+
+    this.moodChips = [...MOOD_PRESETS];
+    this.drinkChips = [...DRINK_PRESETS];
+    this.selectedMoods.clear();
+    this.selectedDrinks.clear();
+
+    this.note = '';
+    this.cancelAdding();
   }
 }
