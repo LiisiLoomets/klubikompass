@@ -65,7 +65,8 @@ body {
 }
 
 .form-input {
-  --background: var(--ion-item-background);
+  --background: var(--app-field-background);
+  border: 1px solid var(--app-field-border);
   border-radius: var(--app-radius-sm);
 }
 
