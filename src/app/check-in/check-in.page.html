@@ -1,7 +1,194 @@
-<app-header title="Check-in"></app-header>
+<app-header title="Lisa check-in"></app-header>
 
 <ion-content [fullscreen]="true">
-  <div class="page">
-    <p>Siia tuleb check-in</p>
+  <div class="page card-stack">
+    <div class="card">
+      <h2 class="card-title"><i class="fa-solid fa-location-dot"></i> Koht</h2>
+
+      <ion-searchbar
+        [value]="searchQuery"
+        (ionInput)="onSearchChange($event.detail.value)"
+        placeholder="Otsi baare ja klubisid"
+      >
+      </ion-searchbar>
+
+      @if (showResults && (filteredPlaces.length > 0 || canAddCustomPlace)) {
+      <ion-list class="place-results">
+        @for (place of filteredPlaces; track place.id) {
+        <ion-item button (click)="selectPlace(place)">
+          <ion-label>{{ place.name }}</ion-label>
+          <ion-note slot="end">{{ place.type }}</ion-note>
+        </ion-item>
+        }
+
+        @if (canAddCustomPlace) {
+          <ion-item button class="place-add" (click)="selectCustomPlace()">
+            <ion-label>
+              <i class="fa-solid fa-plus"></i>
+              Lisa uus koht: {{ searchQuery.trim() }}
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+      }
+
+      <!-- @if (selectedPlace?.isCustom) {
+        <p class="chip-group-label">Aadress (valikuline)</p>
+        <ion-item class="form-input">
+          <ion-input
+          [(ngModel)]="customAddress"
+          name="customAddress"
+          maxlength="120"
+          placeholder="nt Magasini 5, Tartu">
+          </ion-input>
+        </ion-item>
+      } -->
+
+      <h2 class="card-title date-title">
+        <i class="fa-regular fa-calendar-days"></i> Kuupäev
+      </h2>
+
+      <ion-item class="form-input">
+        <ion-input type="date" [(ngModel)]="date" [max]="today" name="date">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fa-regular fa-face-smile"></i> Elamus
+      </h2>
+
+      <p class="chip-group-label">Tuju</p>
+      <div class="chip-row">
+        @for (mood of moodChips; track mood.label) {
+        <button
+          type="button"
+          class="chip"
+          [class.selected]="selectedMoods.has(mood.label)"
+          (click)="toggleMood(mood.label)"
+        >
+          @if (mood.icon) {
+          <i [class]="mood.icon"></i>
+          } {{ mood.label }}
+        </button>
+        }
+
+        @if (addingGroup === 'mood') {
+          <span class="chip-input">
+            <input 
+              #chipInput
+              type="text"
+              maxLength="20"
+              placeholder="Uus tuju"
+              [(ngModel)]="newChipText"
+              (keydown.enter)="confirmAdding()"
+              (keydown.escape)="cancelAdding()" />
+            <button type="button" aria-label="Lisa" (click)="confirmAdding()">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button type="button" aria-label="Tühista" (click)="cancelAdding()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        } @else {
+          <button type="button" class="chip chip-add" (click)="startAdding('mood')">
+            <i class="fa-solid fa-plus"></i> Lisa
+          </button>
+        }
+      </div>
+
+      <p class="chip-group-label">Joogid</p>
+      <div class="chip-row">
+        @for (drink of drinkChips; track drink.label) {
+        <button
+          type="button"
+          class="chip"
+          [class.selected]="selectedDrinks.has(drink.label)"
+          (click)="toggleDrink(drink.label)"
+        >
+          @if (drink.icon) {
+          <i [class]="drink.icon"></i>
+          } {{ drink.label }}
+        </button>
+        }
+
+        @if (addingGroup === 'drink') {
+          <span class="chip-input">
+            <input 
+              #chipInput
+              type="text"
+              maxLength="20"
+              placeholder="Uus jook"
+              [(ngModel)]="newChipText"
+              (keydown.enter)="confirmAdding()"
+              (keydown.escape)="cancelAdding()" />
+            <button type="button" aria-label="Lisa" (click)="confirmAdding()">
+              <i class="fa-solid fa-check"></i>
+            </button>
+            <button type="button" aria-label="Tühista" (click)="cancelAdding()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        } @else {
+          <button type="button" class="chip chip-add" (click)="startAdding('drink')">
+            <i class="fa-solid fa-plus"></i> Lisa
+          </button>
+        }
+      </div>
+
+      <p class="chip-group-label">Märkmed</p>
+      <ion-item class="form-input">
+        <ion-textarea
+        [(ngModel)]="note"
+        name="note"
+        [autoGrow]="true"
+        rows="2"
+        maxlength="280"
+        placeholder="Lisa lühike kommentaar">
+        </ion-textarea>
+      </ion-item>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fa-regular fa-camera"></i> Pilt
+      </h2>
+
+      @if (photoPreview) {
+        <div class="photo-preview">
+          <img [src]="photoPreview" alt="Check-in pilt" />
+          <button 
+            type="button"
+            class="photo-remove"
+            aria-label="Eemalda pilt"
+            (click)="removePhoto()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      } @else {
+        <button type="button" class="photo-add" (click)="pickPhoto()">
+          <i class="fa-regular fa-camera"></i>
+          <span>
+            <strong>Lisa pilt</strong>
+          </span>
+        </button>
+      }
+    </div>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="error">{{ errorMessage }}</p>
+      </ion-text>
+    }
+
+    <ion-button 
+      class="form-button"
+      expand="block"
+      [disabled]="saving"
+      (click)="onSave()">
+      @if (saving) { Salvestan... } @else { SALVESTA CHECK-IN }
+    </ion-button>
+
   </div>
 </ion-content>
