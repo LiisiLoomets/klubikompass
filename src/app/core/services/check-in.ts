@@ -6,8 +6,8 @@ const PHOTO_BUCKET = 'check-in-photos';
 export interface NewCheckIn {
   placeName: string;
   address?: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   note?: string;
   visitedAt: string;
   moods: string[];
@@ -37,8 +37,8 @@ export class CheckInService {
         .insert({
           place_name: input.placeName,
           address: input.address ?? null,
-          latitude: input.lat,
-          longitude: input.lng,
+          latitude: input.lat ?? null,
+          longitude: input.lng ?? null,
           note: input.note?.trim() || null,
           visited_at: input.visitedAt,
           image_url: imagePath,

@@ -27,8 +27,9 @@ import { compressImage } from '@app/core/utils/image';
 interface SelectedPlace {
   name: string;
   address?: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
+  isCustom?: boolean;
 }
 
 interface Chip {
@@ -80,6 +81,7 @@ export class CheckInPage implements OnInit {
   searchQuery = '';
   showResults = false;
   selectedPlace: SelectedPlace | null = null;
+  customAddress = '';
 
   today = new Date().toLocaleDateString('sv-SE');
   date = this.today;
@@ -168,6 +170,31 @@ export class CheckInPage implements OnInit {
     };
     this.searchQuery = place.name;
     this.showResults = false;
+  }
+
+  get canAddCustomPlace(): boolean {
+    if (this.selectedPlace) return false;
+
+    const query = this.normalizePlaceName(this.searchQuery);
+    if (query.length < 2) return false;
+
+    return !this.places.some(
+      (place) => place.name.toLocaleLowerCase() === query.toLowerCase(),
+    );
+  }
+
+  selectCustomPlace() {
+    const name = this.normalizePlaceName(this.searchQuery);
+    if (name.length < 2) return;
+
+    this.selectedPlace = { name, isCustom: true };
+    this.customAddress = '';
+    this.searchQuery = name;
+    this.showResults = false;
+  }
+
+  private normalizePlaceName(text: string): string {
+    return text.trim().replace(/\s+/g, ' ').slice(0, 80);
   }
 
   toggleMood(mood: string) {
@@ -318,7 +345,9 @@ export class CheckInPage implements OnInit {
     try {
       await this.checkInService.createCheckIn({
         placeName: place.name,
-        address: place.address,
+        address: place.isCustom
+          ? this.customAddress.trim() || undefined
+          : place.address,
         lat: place.lat,
         lng: place.lng,
         note: this.note,
@@ -350,6 +379,7 @@ export class CheckInPage implements OnInit {
     this.selectedPlace = null;
     this.searchQuery = '';
     this.showResults = false;
+    this.customAddress = '';
 
     this.today = new Date().toLocaleDateString('sv-SE');
     this.date = this.today;

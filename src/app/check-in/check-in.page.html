@@ -12,7 +12,7 @@
       >
       </ion-searchbar>
 
-      @if (showResults && filteredPlaces.length > 0) {
+      @if (showResults && (filteredPlaces.length > 0 || canAddCustomPlace)) {
       <ion-list class="place-results">
         @for (place of filteredPlaces; track place.id) {
         <ion-item button (click)="selectPlace(place)">
@@ -20,8 +20,29 @@
           <ion-note slot="end">{{ place.type }}</ion-note>
         </ion-item>
         }
+
+        @if (canAddCustomPlace) {
+          <ion-item button class="place-add" (click)="selectCustomPlace()">
+            <ion-label>
+              <i class="fa-solid fa-plus"></i>
+              Lisa uus koht: {{ searchQuery.trim() }}
+            </ion-label>
+          </ion-item>
+        }
       </ion-list>
       }
+
+      <!-- @if (selectedPlace?.isCustom) {
+        <p class="chip-group-label">Aadress (valikuline)</p>
+        <ion-item class="form-input">
+          <ion-input
+          [(ngModel)]="customAddress"
+          name="customAddress"
+          maxlength="120"
+          placeholder="nt Magasini 5, Tartu">
+          </ion-input>
+        </ion-item>
+      } -->
 
       <h2 class="card-title date-title">
         <i class="fa-regular fa-calendar-days"></i> Kuupäev
