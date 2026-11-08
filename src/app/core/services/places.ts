@@ -1,20 +1,45 @@
 import { Injectable } from '@angular/core';
 import { Place } from '@app/models/places.model';
 import { Preferences } from '@capacitor/preferences';
+import { SupabaseService } from './supabase';
 
 const CACHE_KEY = 'cachedPlaces';
 const MAX_DISTANCE_METERS = 300;
 const MAX_AGE_MINUTES = 60;
+const SEARCH_RADIUS_METERS = 2000;
+
+const STALE_MAX_DISTANCE_METERS = 3000;
+
+interface PlacesCache {
+  data: Place[];
+  timestamp: number;
+  location: { lat: number; lng: number };
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlacesService {
-  async getPlaces(lat: number, lng: number): Promise<Place[]> {
+  constructor(private supabaseService: SupabaseService) {}
+
+  private inflight: Promise<Place[]> | null = null;
+
+  getPlaces(lat: number, lng: number): Promise<Place[]> {
+    if (this.inflight) return this.inflight;
+
+    this.inflight = this.loadPlaces(lat, lng).finally(() => {
+      this.inflight = null;
+    });
+
+    return this.inflight;
+  }
+
+  private async loadPlaces(lat: number, lng: number): Promise<Place[]> {
     const cached = await this.getCached();
+    let cacheDistance = Infinity;
 
     if (cached) {
-      const distance = this.getDistanceMeters(
+      cacheDistance = this.getDistanceMeters(
         lat,
         lng,
         cached.location.lat,
@@ -22,71 +47,78 @@ export class PlacesService {
       );
       const ageMinutes = (Date.now() - cached.timestamp) / 1000 / 60;
 
-      if (distance < MAX_DISTANCE_METERS && ageMinutes < MAX_AGE_MINUTES) {
+      if (cacheDistance < MAX_DISTANCE_METERS && ageMinutes < MAX_AGE_MINUTES) {
         return cached.data;
       }
     }
 
-    const places = await this.fetchFromOverpass(lat, lng);
+    const places = await this.fetchFromDatabase(lat, lng);
 
-    if (places.length > 0) {
-      await Preferences.set({
-        key: CACHE_KEY,
-        value: JSON.stringify({
-          data: places,
-          timestamp: Date.now(),
-          location: { lat, lng },
-        }),
-      });
+    if (places) {
+      if (places.length > 0) {
+        await Preferences.set({
+          key: CACHE_KEY,
+          value: JSON.stringify({
+            data: places,
+            timestamp: Date.now(),
+            location: { lat, lng },
+          } satisfies PlacesCache),
+        });
+      }
+      return places;
     }
 
-    return places;
+    if (cached && cacheDistance < STALE_MAX_DISTANCE_METERS) {
+      console.warn('Using older cached places because the request failed');
+      return cached.data;
+    }
+
+    return [];
   }
 
-  private async getCached() {
+  private async getCached(): Promise<PlacesCache | null> {
     const { value } = await Preferences.get({ key: CACHE_KEY });
     return value ? JSON.parse(value) : null;
   }
 
-  private async fetchFromOverpass(lat: number, lng: number): Promise<Place[]> {
-    const query = `[out:json][timeout:10];(node["amenity"="bar"](around:2000,${lat},${lng});node["amenity"="pub"](around:2000,${lat},${lng});node["amenity"="nightclub"](around:2000,${lat},${lng}););out;`;
+  private async fetchFromDatabase(
+    lat: number,
+    lng: number,
+  ): Promise<Place[] | null> {
+    const latDelta = SEARCH_RADIUS_METERS / 111_320;
+    const lngDelta =
+      SEARCH_RADIUS_METERS / (111_320 * Math.cos((lat * Math.PI) / 180));
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const { data, error } = await this.supabaseService.client
+      .from('places')
+      .select('osm_id, name, type, latitude, longitude, address')
+      .gte('latitude', lat - latDelta)
+      .lte('latitude', lat + latDelta)
+      .gte('longitude', lng - lngDelta)
+      .lte('longitude', lng + lngDelta)
+      .limit(1000);
 
-    try {
-      const response = await fetch('https://overpass-api.de/api/interpreter', {
-        method: 'POST',
-        body: query,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) throw new Error(`Overpass error: ${response.status}`);
-
-      const data = await response.json();
-
-      return data.elements.map((el: any) => ({
-        id: String(el.id),
-        name: el.tags?.name || 'Tundmatu koht',
-        type: el.tags?.amenity,
-        lat: el.lat,
-        lng: el.lon,
-        address: this.getAddress(el.tags),
-      }));
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.error('Failed to fetch places: ', err);
-      return [];
+    if (error) {
+      console.error('Failed to load places:', error);
+      return null;
     }
-  }
 
-  private getAddress(tags: any): string | undefined {
-    const parts: string[] = [];
-    if (tags?.['addr:street']) parts.push(tags['addr:street']);
-    if (tags?.['addr:housenumber']) parts.push(tags['addr:housenumber']);
-    return parts.length ? parts.join(', ') : undefined;
+    return data
+      .map(
+        (row): Place => ({
+          id: String(row.osm_id),
+          name: row.name,
+          type: row.type,
+          lat: row.latitude,
+          lng: row.longitude,
+          address: row.address ?? undefined,
+        }),
+      )
+      .filter(
+        (place) =>
+          this.getDistanceMeters(lat, lng, place.lat, place.lng) <=
+          SEARCH_RADIUS_METERS,
+      );
   }
 
   private getDistanceMeters(
