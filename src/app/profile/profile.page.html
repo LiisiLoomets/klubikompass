@@ -1,11 +1,88 @@
 <app-header title="Profiil"></app-header>
 
 <ion-content [fullscreen]="true">
-  <div class="page">
-    <p>Siia tuleb aruanne</p>
+  <div class="page card-stack">
+    @if (loading) {
+    <div class="state">
+      <ion-spinner></ion-spinner>
+    </div>
+    } @else if (errorMessage) {
+    <div class="state">
+      <p>{{ errorMessage }}</p>
+    </div>
+    } @else {
 
-    <ion-button expand="block" color="danger" (click)="onLogout()">
+    <section class="card greeting-card">
+      <i class="fa-regular fa-circle-user avatar-icon"></i>
+      <div>
+        <h1 class="greeting-title">
+          Tere, <span class="highlight">{{ username }}</span>!
+        </h1>
+        <p class="greeting-subtitle">Sinu KlubiKompassi aruanne</p>
+      </div>
+    </section>
+
+    @if (stats.topPlaces.length > 0) {
+    <section class="card">
+      <h2 class="top-title">Top 3 enim külastatud</h2>
+      <ol class="top-list">
+        @for (place of stats.topPlaces; track $index; let i = $index) {
+        <li class="top-row">
+          <span class="rank">{{ i + 1 }}</span>
+          <span class="top-name">{{ place.name }}</span>
+          <span class="top-count">{{ place.count }}x</span>
+        </li>
+        }
+      </ol>
+    </section>
+    }
+
+    <section class="card stats-card">
+      <div class="stat">
+        <i class="fa-regular fa-compass"></i>
+        <span class="stat-label">Külastusi kokku</span>
+        <strong>{{ stats.total }}</strong>
+      </div>
+      <div class="stat">
+        <i class="fa-solid fa-location-dot"></i>
+        <span class="stat-label">Erinevaid kohti</span>
+        <strong>{{ stats.distinctPlaces }}</strong>
+      </div>
+      <div class="stat">
+        <i class="fa-regular fa-calendar-days"></i>
+        <span class="stat-label">Sel kuul</span>
+        <strong>{{ stats.thisMonth }}</strong>
+      </div>
+    </section>
+
+    <ion-button
+      class="form-button logout"
+      expand="block"
+      fill="outline"
+      color="danger"
+      (click)="onLogout()"
+    >
       Logi välja
     </ion-button>
+
+    <h2 class="section-title">Kõik külastused</h2>
+
+    @if (checkIns.length === 0) {
+    <div class="state">
+      <p>Sul pole veel ühtegi check-in'i</p>
+      <p class="state-subtext">Lisa esimene "Lisa" vahelehelt</p>
+    </div>
+    } @else { @for (item of checkIns; track item.id) {
+    <app-check-in-card [checkIn]="item"></app-check-in-card>
+    } @if (hasMore) {
+    <ion-button
+      fill="clear"
+      expand="block"
+      [disabled]="loadingMore"
+      (click)="loadMore()"
+    >
+      @if (loadingMore) { Laen... } @else { Näita rohkem }
+    </ion-button>
+    } } }
   </div>
 </ion-content>
